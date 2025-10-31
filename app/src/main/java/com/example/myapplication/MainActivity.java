@@ -16,25 +16,28 @@ import android.widget.ArrayAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Thread that runs the stopwatch timer
+    // Manages the execution of the stopwatch timer logic in the background.
     public static Thread startThread ;
-    // Flag to indicate if the stopwatch is running
+    // Tracks whether the stopwatch is currently running.
     public static boolean isStarted;
-    // Flag to indicate if the stopwatch is restarted
+    // Tracks whether the stopwatch has been reset.
     public static boolean isReStarted;
-    // Flag to indicate if the stopwatch is paused
+    // Tracks whether the stopwatch is in a paused state.
     public static boolean isPaused;
-    // Holds the current time as a string, used for lap times
+    // Stores the current stopwatch time as a formatted string.
     public static String currentTime;
-    // Stores the elapsed time in milliseconds. Crucial for pausing and resuming.
+    // Stores the elapsed time in milliseconds when the stopwatch is paused. Essential for resuming correctly.
     public static long timeDifference = 0;
-    // the textview as screen of the stopwatch
+    // UI element to display the stopwatch time.
     public TextView textView;
+    // UI element to display the list of lap times.
     public ListView listView;
+    // UI buttons for controlling the stopwatch.
     public Button start;
     public Button restart;
     public Button pause;
     public Button lap;
+    // Data store for lap times and the adapter to link it to the ListView.
     public static ArrayList<String> dataList;
     public static ArrayAdapter<String> adapter;
     /**
@@ -44,15 +47,19 @@ public class MainActivity extends AppCompatActivity {
      */
     private static String millisToTime(long millis){
         long seconds = millis/1000;
-        millis %= 1000;
+        long remainingMillis = millis % 1000;
         long minutes = seconds/60;
         seconds %= 60;
         long hours = minutes/60;
         minutes %= 60;
+
+        // Pad with leading zeros for a consistent format.
         String second = (seconds<10) ? "0"+seconds : ""+seconds;
         String minute = (minutes<10) ? "0"+minutes : ""+minutes;
         String hour = (hours<10) ? "0"+hours : ""+hours;
-        String milli = (millis<100) ? "0"+millis : ""+millis;
+        String milli = (remainingMillis<100) ? (remainingMillis < 10 ? "00"+remainingMillis : "0"+remainingMillis) : ""+remainingMillis;
+
+        // Return the formatted time string.
         return String.format("%s:%s:%s.%s", hour, minute, second, milli);
     }
     /**
@@ -61,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static void start(TextView textView) throws InterruptedException {
 
+        // Set state flags for running mode.
         isStarted = true;
         isPaused = false;
         isReStarted = false;
@@ -68,19 +76,22 @@ public class MainActivity extends AppCompatActivity {
         // If resuming, this subtracts the already elapsed time (timeDifference)
         // to ensure the timer continues from where it left off.
         long startTimeInMillis = System.currentTimeMillis()-timeDifference;
-        // Loop as long as the stopwatch is running
+
+        // Main timer loop; continues as long as the stopwatch is started.
         while (isStarted) {
-            // Calculate total elapsed time and update the display and helper variables.
+            // Calculate total elapsed time since start.
             currentTime = millisToTime(System.currentTimeMillis()-startTimeInMillis);
+            // Update the UI with the new time.
             textView.setText(currentTime);
             // Pause the thread for a short duration to prevent high CPU usage
             // and to create a periodic update cycle.
             Thread.sleep(100);
         }
+        // After the loop ends, check if it was due to a restart or a pause.
         if (isReStarted){
             timeDifference = 0;
-        }
-        else{
+        } else {
+            // If paused, store the elapsed time to resume from this point later.
             timeDifference = System.currentTimeMillis()-startTimeInMillis;
         }
     }
@@ -109,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+        // Set the layout for this activity.
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -117,19 +129,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // XML elements
+        // Initialize UI elements from the layout.
         textView = findViewById(R.id.screen);
         listView = findViewById(R.id.listView);
-        // ArrayList, Adapter
+
+        // Initialize the list for lap times and its adapter for the ListView.
         dataList = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
 
-        // Buttons
+        // Initialize buttons from the layout.
         start = findViewById(R.id.startBtn);
+        // Set a click listener for the Start button.
         start.setOnClickListener(v -> {
+            // Only start if the stopwatch is not already running.
             if (!isStarted){
                 startThread = new Thread(){@Override public void run(){ try {
+                    // Run the stopwatch logic in a new background thread.
                     MainActivity.start(textView);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -140,9 +156,11 @@ public class MainActivity extends AppCompatActivity {
 
         pause = findViewById(R.id.pauseBtn);
         pause.setOnClickListener(v ->{
+            // Only pause if the stopwatch is currently running.
             if (isStarted) {
                 pause();
                 try{
+                    // Wait for the stopwatch thread to finish its current execution cycle and terminate.
                     startThread.join();
                 }
                 catch (InterruptedException ex) {
@@ -153,13 +171,16 @@ public class MainActivity extends AppCompatActivity {
 
         restart = findViewById(R.id.restartBtn);
         restart.setOnClickListener(v ->{
-            // Action is performed only if stopwatch was started or is paused
+            // Restart is allowed if the stopwatch has been started or is currently paused.
             if (isPaused || isStarted) {
                 restart(textView);
+                // Clear the lap times list and update the adapter.
                 dataList.clear();
                 adapter.notifyDataSetChanged();
+                // If the stopwatch was running (not paused), we need to stop the thread.
                 if (!isPaused){
                     try{
+                        // Wait for the stopwatch thread to terminate.
                         startThread.join();
                     }
                     catch (InterruptedException ex) {
