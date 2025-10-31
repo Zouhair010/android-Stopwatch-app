@@ -9,67 +9,91 @@
 
     <ListView
         android:id="@+id/listView"
-        android:layout_width="281dp"
-        android:layout_height="381dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="76dp"
+        android:layout_width="276dp"
+        android:layout_height="347dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="116dp"
+        android:foregroundGravity="center"
+        android:foregroundTint="#1552E6"
+        android:foregroundTintMode="multiply"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/screen"
-        android:layout_width="193dp"
-        android:layout_height="34dp"
-        android:layout_marginTop="70dp"
+        android:layout_width="192dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="132dp"
         android:text="00:00:00.000"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="360dp"
-        android:layout_height="72dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginBottom="1dp"
-        android:orientation="horizontal"
+    <Button
+        android:id="@+id/restartBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="13dp"
+        android:backgroundTint="#E92C2C"
+        app:icon="@android:drawable/stat_notify_sync_noanim"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toStartOf="@+id/lapBtn"
+        app:layout_constraintStart_toEndOf="@+id/startBtn"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
+
+    <Button
+        android:id="@+id/pauseBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="74dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="13dp"
+        android:backgroundTint="#38A5FB"
+        android:foregroundTintMode="add"
+        app:icon="@android:drawable/ic_media_pause"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toStartOf="@+id/startBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
+
+    <Button
+        android:id="@+id/lapBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="74dp"
+        android:layout_marginBottom="13dp"
+        android:backgroundTint="#F2B035"
+        app:icon="@android:drawable/stat_sys_download"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.481"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/screen"
-        app:layout_constraintVertical_bias="0.287">
+        app:layout_constraintStart_toEndOf="@+id/restartBtn"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
 
-        <Button
-            android:id="@+id/startBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="start" />
-
-        <Button
-            android:id="@+id/restartBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:text="restart" />
-
-        <Button
-            android:id="@+id/pauseBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:text="pause" />
-
-        <Button
-            android:id="@+id/labBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:text="lab" />
-    </LinearLayout>
+    <Button
+        android:id="@+id/startBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="13dp"
+        android:backgroundTint="#56C107"
+        app:icon="@android:drawable/ic_media_play"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toStartOf="@+id/restartBtn"
+        app:layout_constraintStart_toEndOf="@+id/pauseBtn"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

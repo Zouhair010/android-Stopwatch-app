@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     public static Thread startThread ;
     // Flag to indicate if the stopwatch is running
     public static boolean isStarted;
+    // Flag to indicate if the stopwatch is restarted
     public static boolean isReStarted;
     // Flag to indicate if the stopwatch is paused
     public static boolean isPaused;
@@ -26,8 +28,13 @@ public class MainActivity extends AppCompatActivity {
     public static String currentTime;
     // Stores the elapsed time in milliseconds. Crucial for pausing and resuming.
     public static long timeDifference = 0;
+    // the textview as screen of the stopwatch
     public TextView textView;
     public ListView listView;
+    public Button start;
+    public Button restart;
+    public Button pause;
+    public Button lap;
     public static ArrayList<String> dataList;
     public static ArrayAdapter<String> adapter;
     /**
@@ -45,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         String second = (seconds<10) ? "0"+seconds : ""+seconds;
         String minute = (minutes<10) ? "0"+minutes : ""+minutes;
         String hour = (hours<10) ? "0"+hours : ""+hours;
-        return String.format("%s:%s:%s.%s", hour, minute, second, millis);
+        String milli = (millis<100) ? "0"+millis : ""+millis;
+        return String.format("%s:%s:%s.%s", hour, minute, second, milli);
     }
     /**
      * Starts or resumes the stopwatch.
@@ -108,8 +116,9 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+
+        // XML elements
         textView = findViewById(R.id.screen);
-        // XML
         listView = findViewById(R.id.listView);
         // ArrayList, Adapter
         dataList = new ArrayList<>();
@@ -117,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         // Buttons
-        findViewById(R.id.startBtn).setOnClickListener(v -> {
+        start = findViewById(R.id.startBtn);
+        start.setOnClickListener(v -> {
             if (!isStarted){
                 startThread = new Thread(){@Override public void run(){ try {
                     MainActivity.start(textView);
@@ -128,7 +138,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.pauseBtn).setOnClickListener(v ->{
+        pause = findViewById(R.id.pauseBtn);
+        pause.setOnClickListener(v ->{
             if (isStarted) {
                 pause();
                 try{
@@ -140,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.restartBtn).setOnClickListener(v ->{
+        restart = findViewById(R.id.restartBtn);
+        restart.setOnClickListener(v ->{
             // Action is performed only if stopwatch was started or is paused
             if (isPaused || isStarted) {
                 restart(textView);
@@ -157,7 +169,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.labBtn).setOnClickListener(v -> {
+        lap = findViewById(R.id.lapBtn);
+        lap.setOnClickListener(v -> {
             if (!currentTime.equals("00:00:00.000")) {
                 dataList.add(currentTime);
                 adapter.notifyDataSetChanged();
