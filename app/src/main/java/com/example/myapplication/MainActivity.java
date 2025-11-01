@@ -12,12 +12,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import android.widget.ArrayAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
     // Manages the execution of the stopwatch timer logic in the background.
     public static Thread startThread ;
+    public Thread dateTimeThread;
     // Tracks whether the stopwatch is currently running.
     public static boolean isStarted;
     // Tracks whether the stopwatch has been reset.
@@ -28,18 +32,20 @@ public class MainActivity extends AppCompatActivity {
     public static String currentTime;
     // Stores the elapsed time in milliseconds when the stopwatch is paused. Essential for resuming correctly.
     public static long timeDifference = 0;
-    // UI element to display the stopwatch time.
-    public TextView textView;
-    // UI element to display the list of lap times.
-    public ListView listView;
-    // UI buttons for controlling the stopwatch.
-    public Button start;
-    public Button restart;
-    public Button pause;
-    public Button lap;
     // Data store for lap times and the adapter to link it to the ListView.
+    public ListView listView;
     public static ArrayList<String> dataList;
     public static ArrayAdapter<String> adapter;
+
+    private void showDateTime(TextView datetimeScreen) throws InterruptedException{;
+        while (true){
+            runOnUiThread(() -> datetimeScreen.setText(
+                    new GregorianCalendar().getTime().toString()
+            ));
+//            datetimeScreen.setText(new GregorianCalendar().getTime().toString());
+            Thread.sleep(1000);
+        }
+    }
     /**
      * Converts milliseconds into a time format HH:mm:ss.SSS.
      * @param millis The duration in milliseconds.
@@ -52,13 +58,11 @@ public class MainActivity extends AppCompatActivity {
         seconds %= 60;
         long hours = minutes/60;
         minutes %= 60;
-
         // Pad with leading zeros for a consistent format.
         String second = (seconds<10) ? "0"+seconds : ""+seconds;
         String minute = (minutes<10) ? "0"+minutes : ""+minutes;
         String hour = (hours<10) ? "0"+hours : ""+hours;
         String milli = (remainingMillis<100) ? (remainingMillis < 10 ? "00"+remainingMillis : "0"+remainingMillis) : ""+remainingMillis;
-
         // Return the formatted time string.
         return String.format("%s:%s:%s.%s", hour, minute, second, milli);
     }
@@ -67,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
      * @throws InterruptedException if the thread is interrupted.
      */
     private static void start(TextView textView) throws InterruptedException {
-
         // Set state flags for running mode.
         isStarted = true;
         isPaused = false;
@@ -76,12 +79,12 @@ public class MainActivity extends AppCompatActivity {
         // If resuming, this subtracts the already elapsed time (timeDifference)
         // to ensure the timer continues from where it left off.
         long startTimeInMillis = System.currentTimeMillis()-timeDifference;
-
         // Main timer loop; continues as long as the stopwatch is started.
         while (isStarted) {
             // Calculate total elapsed time since start.
             currentTime = millisToTime(System.currentTimeMillis()-startTimeInMillis);
             // Update the UI with the new time.
+//            runOnUiThread(() -> textView.setText(currentTime));
             textView.setText(currentTime);
             // Pause the thread for a short duration to prevent high CPU usage
             // and to create a periodic update cycle.
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Pauses the stopwatch.
      */
-    public static void pause() {
+    private static void pause() {
         // Set flags to stop the timer loop in the start() method.
         isStarted = false;
         isPaused = true;
@@ -106,13 +109,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Stops and resets the stopwatch to zero.
      */
-    public static void restart(TextView textView) {
+    private static void restart(TextView textView) {
         // Reset all state variables and the display to their initial values.
         isStarted = false;
         isReStarted = true;
         timeDifference = 0;
         currentTime = "00:00:00.000";
-        textView.setText("");
         textView.setText(currentTime);
     }
 
@@ -128,25 +130,26 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-
-        // Initialize UI elements from the layout.
-        textView = findViewById(R.id.screen);
-        listView = findViewById(R.id.listView);
+        dateTimeThread = new Thread(){@Override public void run(){ try {
+            showDateTime(findViewById(R.id.datetimeScreen));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }}};
+        dateTimeThread.start();
 
         // Initialize the list for lap times and its adapter for the ListView.
+        listView = findViewById(R.id.listView);
         dataList = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
 
-        // Initialize buttons from the layout.
-        start = findViewById(R.id.startBtn);
         // Set a click listener for the Start button.
-        start.setOnClickListener(v -> {
+        findViewById(R.id.startBtn).setOnClickListener(v -> {
             // Only start if the stopwatch is not already running.
             if (!isStarted){
                 startThread = new Thread(){@Override public void run(){ try {
                     // Run the stopwatch logic in a new background thread.
-                    MainActivity.start(textView);
+                    MainActivity.start(findViewById(R.id.screen));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }}};
@@ -154,14 +157,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        pause = findViewById(R.id.pauseBtn);
-        pause.setOnClickListener(v ->{
+        findViewById(R.id.pauseBtn).setOnClickListener(v ->{
             // Only pause if the stopwatch is currently running.
             if (isStarted) {
                 pause();
                 try{
                     // Wait for the stopwatch thread to finish its current execution cycle and terminate.
                     startThread.join();
+                    startThread = null;
                 }
                 catch (InterruptedException ex) {
                     ex.printStackTrace();
@@ -169,11 +172,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        restart = findViewById(R.id.restartBtn);
-        restart.setOnClickListener(v ->{
+        findViewById(R.id.restartBtn).setOnClickListener(v ->{
             // Restart is allowed if the stopwatch has been started or is currently paused.
             if (isPaused || isStarted) {
-                restart(textView);
+                restart(findViewById(R.id.screen));
                 // Clear the lap times list and update the adapter.
                 dataList.clear();
                 adapter.notifyDataSetChanged();
@@ -182,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     try{
                         // Wait for the stopwatch thread to terminate.
                         startThread.join();
+                        startThread = null;
                     }
                     catch (InterruptedException ex) {
                         ex.printStackTrace();
@@ -190,9 +193,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        lap = findViewById(R.id.lapBtn);
-        lap.setOnClickListener(v -> {
-            if (!currentTime.equals("00:00:00.000")) {
+        findViewById(R.id.lapBtn).setOnClickListener(v -> {
+            if (currentTime!=null&&!currentTime.equals("00:00:00.000")) {
                 dataList.add(currentTime);
                 adapter.notifyDataSetChanged();
             }
