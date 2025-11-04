@@ -48,48 +48,65 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="83dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="83dp"
-        android:layout_marginBottom="58dp"
-        android:orientation="horizontal"
+    <Button
+        android:id="@+id/restartBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="63dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="44dp"
+        android:backgroundTint="#E92C2C"
+        app:icon="@android:drawable/stat_notify_sync_noanim"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toStartOf="@+id/lapBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
+
+    <Button
+        android:id="@+id/startBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="63dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="44dp"
+        android:backgroundTint="#56C107"
+        app:icon="@android:drawable/ic_media_play"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
+        app:layout_constraintStart_toEndOf="@+id/lapBtn"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
+
+    <Button
+        android:id="@+id/lapBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="63dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="44dp"
+        android:backgroundTint="#F2B035"
+        app:icon="@android:drawable/stat_sys_download"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toStartOf="@+id/startBtn"
+        app:layout_constraintStart_toEndOf="@+id/restartBtn"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
+
+    <Button
+        android:id="@+id/pauseBtn"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="63dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="44dp"
+        android:backgroundTint="#38A5FB"
+        android:foregroundTintMode="add"
+        app:icon="@android:drawable/ic_media_pause"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/screen"
-        app:layout_constraintVertical_bias="0.0">
-
-        <Button
-            android:id="@+id/restartBtn"
-            android:layout_width="60dp"
-            android:layout_height="70dp"
-            android:backgroundTint="#E92C2C"
-            app:icon="@android:drawable/stat_notify_sync_noanim" />
-
-        <Button
-            android:id="@+id/lapBtn"
-            android:layout_width="60dp"
-            android:layout_height="70dp"
-            android:backgroundTint="#F2B035"
-            app:icon="@android:drawable/stat_sys_download" />
-
-        <Button
-            android:id="@+id/startBtn"
-            android:layout_width="60dp"
-            android:layout_height="70dp"
-            android:backgroundTint="#56C107"
-            app:icon="@android:drawable/ic_media_play" />
-
-        <Button
-            android:id="@+id/pauseBtn"
-            android:layout_width="60dp"
-            android:layout_height="70dp"
-            android:backgroundTint="#38A5FB"
-            android:foregroundTintMode="add"
-            app:icon="@android:drawable/ic_media_pause" />
-    </LinearLayout>
+        app:layout_constraintStart_toEndOf="@+id/startBtn"
+        app:layout_constraintTop_toBottomOf="@+id/screen" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
