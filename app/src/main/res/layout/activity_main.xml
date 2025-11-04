@@ -9,39 +9,23 @@
 
     <ListView
         android:id="@+id/listView"
-        android:layout_width="263dp"
+        android:layout_width="0dp"
         android:layout_height="335dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="56dp"
         android:foregroundGravity="center"
         android:foregroundTint="#1552E6"
         android:foregroundTintMode="multiply"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/startBtn"
-        android:layout_width="60dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="13dp"
-        android:backgroundTint="#56C107"
-        app:icon="@android:drawable/ic_media_play"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toStartOf="@+id/restartBtn"
-        app:layout_constraintStart_toEndOf="@+id/pauseBtn"
-        app:layout_constraintTop_toBottomOf="@+id/screen"
-        app:layout_constraintVertical_bias="0.884" />
 
     <TextView
         android:id="@+id/screen"
-        android:layout_width="192dp"
-        android:layout_height="45dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="00:00:00.000"
         android:textAlignment="center"
@@ -51,59 +35,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/datetimeScreen" />
 
-    <Button
-        android:id="@+id/restartBtn"
-        android:layout_width="60dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="13dp"
-        android:backgroundTint="#E92C2C"
-        app:icon="@android:drawable/stat_notify_sync_noanim"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toStartOf="@+id/lapBtn"
-        app:layout_constraintStart_toEndOf="@+id/startBtn"
-        app:layout_constraintTop_toBottomOf="@+id/screen"
-        app:layout_constraintVertical_bias="0.884" />
-
-    <Button
-        android:id="@+id/lapBtn"
-        android:layout_width="60dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="74dp"
-        android:layout_marginBottom="13dp"
-        android:backgroundTint="#F2B035"
-        app:icon="@android:drawable/stat_sys_download"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/restartBtn"
-        app:layout_constraintTop_toBottomOf="@+id/screen"
-        app:layout_constraintVertical_bias="0.884" />
-
-    <Button
-        android:id="@+id/pauseBtn"
-        android:layout_width="60dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="74dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="13dp"
-        android:backgroundTint="#38A5FB"
-        android:foregroundTintMode="add"
-        app:icon="@android:drawable/ic_media_pause"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toStartOf="@+id/startBtn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/screen"
-        app:layout_constraintVertical_bias="0.884" />
-
     <TextView
         android:id="@+id/datetimeScreen"
-        android:layout_width="394dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="73dp"
         android:layout_marginEnd="9dp"
@@ -112,5 +47,49 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="83dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="83dp"
+        android:layout_marginBottom="58dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/screen"
+        app:layout_constraintVertical_bias="0.0">
+
+        <Button
+            android:id="@+id/restartBtn"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:backgroundTint="#E92C2C"
+            app:icon="@android:drawable/stat_notify_sync_noanim" />
+
+        <Button
+            android:id="@+id/lapBtn"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:backgroundTint="#F2B035"
+            app:icon="@android:drawable/stat_sys_download" />
+
+        <Button
+            android:id="@+id/startBtn"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:backgroundTint="#56C107"
+            app:icon="@android:drawable/ic_media_play" />
+
+        <Button
+            android:id="@+id/pauseBtn"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:backgroundTint="#38A5FB"
+            android:foregroundTintMode="add"
+            app:icon="@android:drawable/ic_media_pause" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

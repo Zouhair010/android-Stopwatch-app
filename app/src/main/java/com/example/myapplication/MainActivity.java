@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,22 +21,22 @@ import android.widget.ArrayAdapter;
 public class MainActivity extends AppCompatActivity {
 
     // Manages the execution of the stopwatch timer logic in the background.
-    public static Thread startThread ;
-    public Thread dateTimeThread;
+    private Thread startThread ;
+    private Thread dateTimeThread;
     // Tracks whether the stopwatch is currently running.
-    public static boolean isStarted;
+    private static boolean isStarted;
     // Tracks whether the stopwatch has been reset.
-    public static boolean isReStarted;
+    private static boolean isReStarted;
     // Tracks whether the stopwatch is in a paused state.
-    public static boolean isPaused;
+    private static boolean isPaused;
     // Stores the current stopwatch time as a formatted string.
-    public static String currentTime;
+    private static String currentTime;
     // Stores the elapsed time in milliseconds when the stopwatch is paused. Essential for resuming correctly.
-    public static long timeDifference = 0;
+    private static long timeDifference = 0;
     // Data store for lap times and the adapter to link it to the ListView.
-    public ListView listView;
-    public static ArrayList<String> dataList;
-    public static ArrayAdapter<String> adapter;
+    private ListView listView;
+    private static ArrayList<String> dataList;
+    private static ArrayAdapter<String> adapter;
 
     private void showDateTime(TextView datetimeScreen) throws InterruptedException{;
         while (true){
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
      * @param millis The duration in milliseconds.
      * @return A string representing the time.
      */
-    private static String millisToTime(long millis){
+    private String millisToTime(long millis){
         long seconds = millis/1000;
         long remainingMillis = millis % 1000;
         long minutes = seconds/60;
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
      * Starts or resumes the stopwatch.
      * @throws InterruptedException if the thread is interrupted.
      */
-    private static void start(TextView textView) throws InterruptedException {
+    private void play(TextView textView) throws InterruptedException {
         // Set state flags for running mode.
         isStarted = true;
         isPaused = false;
@@ -84,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
             // Calculate total elapsed time since start.
             currentTime = millisToTime(System.currentTimeMillis()-startTimeInMillis);
             // Update the UI with the new time.
-//            runOnUiThread(() -> textView.setText(currentTime));
-            textView.setText(currentTime);
+            runOnUiThread(() -> textView.setText(currentTime));
+            //textView.setText(currentTime);
             // Pause the thread for a short duration to prevent high CPU usage
             // and to create a periodic update cycle.
             Thread.sleep(100);
@@ -131,8 +132,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         dateTimeThread = new Thread(){@Override public void run(){ try {
+            // Call the method to continuously update the time TextView
             showDateTime(findViewById(R.id.datetimeScreen));
         } catch (InterruptedException e) {
+            // Print the stack trace if the thread is interrupted
             e.printStackTrace();
         }}};
         dateTimeThread.start();
@@ -148,12 +151,14 @@ public class MainActivity extends AppCompatActivity {
             // Only start if the stopwatch is not already running.
             if (!isStarted){
                 startThread = new Thread(){@Override public void run(){ try {
-                    // Run the stopwatch logic in a new background thread.
-                    MainActivity.start(findViewById(R.id.screen));
+                    // Call the method to continuously update the time TextView
+                    play(findViewById(R.id.screen));
                 } catch (InterruptedException e) {
+                    // Print the stack trace if the thread is interrupted
                     e.printStackTrace();
                 }}};
                 startThread.start();
+                Toast.makeText(this, "GO!!!!!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -169,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
+                Toast.makeText(this, "the stop watch paussed.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -190,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                         ex.printStackTrace();
                     }
                 }
+                Toast.makeText(this, "the stop watch restarted.", Toast.LENGTH_SHORT).show();
             }
         });
 
