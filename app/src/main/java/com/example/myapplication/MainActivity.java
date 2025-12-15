@@ -1,6 +1,8 @@
 package com.example.myapplication; // Declares the package where this class belongs.
 
 import android.os.Bundle; // Imports the class for passing data between activities.
+import android.os.SystemClock;
+import android.view.View;
 import android.widget.Button; // Imports the Button widget class (though not explicitly used by name, it's often inferred).
 import android.widget.ListView; // Imports the ListView widget class for displaying a scrollable list.
 import android.widget.TextView; // Imports the TextView widget class for displaying text.
@@ -11,6 +13,7 @@ import androidx.core.graphics.Insets; // Imports class for managing window inset
 import androidx.core.view.ViewCompat; // Imports compatibility class for View functionality.
 import androidx.core.view.WindowInsetsCompat; // Imports compatibility class for window insets.
 import android.widget.Toast; // Imports the Toast class for displaying brief messages.
+import android.widget.ProgressBar;
 
 import java.util.ArrayList; // Imports the dynamic array (List) implementation.
 import java.util.Calendar; // Imports the Calendar abstract class for date and time calculations (though GregorianCalendar is used).
@@ -23,8 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Manages the execution of the stopwatch timer logic in the background.
     private Thread startThread ;
-    // Manages the execution of the continuous date/time display in the background.
-    private Thread dateTimeThread;
     // Tracks whether the stopwatch is currently running.
     private static boolean isStarted;
     // Tracks whether the stopwatch has been reset.
@@ -37,33 +38,27 @@ public class MainActivity extends AppCompatActivity {
     private static long timeDifference = 0;
     // Data store for lap times and the adapter to link it to the ListView.
     private ListView listView;
+    private ProgressBar progressBar; // Visual indicator for the seconds of the stopwatch.
     // The list that holds the lap time strings.
     private static ArrayList<String> dataList;
     // The adapter that connects dataList to the ListView.
     private static ArrayAdapter<String> adapter;
+    private int progressSeconds = 0;
 
-    // Method to continuously update a TextView with the current date and time.
-    private void showDateTime(TextView datetimeScreen) throws InterruptedException{;
-        while (true){ // Infinite loop for continuous updates.
-            // Updates the UI on the main thread with the current time.
-            runOnUiThread(() -> datetimeScreen.setText(
-                    new GregorianCalendar().getTime().toString()
-            ));
-            Thread.sleep(1000); // Pauses for 1 second before the next update.
-        }
-    }
+
     /**
      * Converts milliseconds into a time format HH:mm:ss.SSS.
      * @param millis The duration in milliseconds.
      * @return A string representing the time.
      */
     private String millisToTime(long millis){
-        long seconds = millis/1000; // Calculate total seconds.
-        long remainingMillis = millis % 1000; // Calculate remaining milliseconds.
-        long minutes = seconds/60; // Calculate total minutes.
+        int seconds = (int) millis/1000; // Calculate total seconds.
+        int remainingMillis = (int) millis % 1000; // Calculate remaining milliseconds.
+        int minutes = seconds/60; // Calculate total minutes.
         seconds %= 60; // Calculate remaining seconds (0-59).
-        long hours = minutes/60; // Calculate total hours.
+        int hours = minutes/60; // Calculate total hours.
         minutes %= 60; // Calculate remaining minutes (0-59).
+        progressSeconds =  seconds;
         // Pad with leading zeros for a consistent format.
         String second = (seconds<10) ? "0"+seconds : ""+seconds; // Format seconds with leading zero if needed.
         String minute = (minutes<10) ? "0"+minutes : ""+minutes; // Format minutes with leading zero if needed.
@@ -75,9 +70,8 @@ public class MainActivity extends AppCompatActivity {
     }
     /**
      * Starts or resumes the stopwatch.
-     * @throws InterruptedException if the thread is interrupted.
      */
-    private void play(TextView textView) throws InterruptedException {
+    private void play(TextView textView) {
         // Set state flags for running mode.
         isStarted = true;
         isPaused = false;
@@ -91,11 +85,13 @@ public class MainActivity extends AppCompatActivity {
             // Calculate total elapsed time since the effective start time.
             currentTime = millisToTime(System.currentTimeMillis()-startTimeInMillis);
             // Update the UI with the new time. Must run on the UI thread.
-            runOnUiThread(() -> textView.setText(currentTime));
-            //textView.setText(currentTime); // Alternative non-UI-thread call.
+            runOnUiThread(() -> {
+                textView.setText(currentTime);
+                progressBar.setProgress(progressSeconds, true); // Update the progress bar to reflect the current second (0-59).
+            });
             // Pause the thread for a short duration to prevent high CPU usage
             // and to create a periodic update cycle (10 updates per second).
-            Thread.sleep(100);
+            SystemClock.sleep(100);
         }
         // After the loop ends, check if it was due to a restart or a pause.
         if (isReStarted){
@@ -138,16 +134,11 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize and start the background thread for the date/time display.
-        dateTimeThread = new Thread(){@Override public void run(){ try {
-            // Call the method to continuously update the time TextView
-            showDateTime(findViewById(R.id.datetimeScreen));
-        } catch (InterruptedException e) {
-            // Print the stack trace if the thread is interrupted
-            e.printStackTrace();
-        }}};
-        dateTimeThread.start();
+        findViewById(R.id.pauseBtn).setVisibility(View.GONE);
+        findViewById(R.id.lapBtn).setVisibility(View.GONE);
 
+        // Initialize the ProgressBar. Its max value should be set to 59 or 60 in the layout XML.
+        progressBar = findViewById(R.id.progressBar);
         // Initialize the list for lap times and its adapter for the ListView.
         listView = findViewById(R.id.listView); // Get the ListView from the layout.
         dataList = new ArrayList<>(); // Initialize the data list.
@@ -155,21 +146,21 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter); // Set the adapter on the ListView.
 
-        // Set a click listener for the Start button.
+        // Set a click listener for the Start button.d
         findViewById(R.id.startBtn).setOnClickListener(v -> {
             // Only start if the stopwatch is not already running.
             if (!isStarted){
                 // Initialize and start the background thread for the stopwatch.
-                startThread = new Thread(){@Override public void run(){ try {
-                    // Call the method to continuously update the stopwatch TextView
+                startThread = new Thread(){@Override public void run(){
                     play(findViewById(R.id.screen));
-                } catch (InterruptedException e) {
-                    // Print the stack trace if the thread is interrupted
-                    e.printStackTrace();
-                }}};
+                }};
                 startThread.start(); // Begin the stopwatch thread execution.
                 // Display a brief confirmation message.
                 Toast.makeText(this, "GO!!!!!", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.startBtn).setVisibility(View.GONE);
+                findViewById(R.id.pauseBtn).setVisibility(View.VISIBLE);
+                findViewById(R.id.restartBtn).setVisibility(View.GONE);
+                findViewById(R.id.lapBtn).setVisibility(View.VISIBLE);
             }
         });
 
@@ -188,6 +179,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 // Display a brief confirmation message.
                 Toast.makeText(this, "the stop watch paussed.", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.pauseBtn).setVisibility(View.GONE);
+                findViewById(R.id.startBtn).setVisibility(View.VISIBLE);
+                findViewById(R.id.lapBtn).setVisibility(View.GONE);
+                findViewById(R.id.restartBtn).setVisibility(View.VISIBLE);
             }
         });
 
@@ -210,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                         ex.printStackTrace();
                     }
                 }
+                progressBar.setProgress(0,true); // Reset the progress bar to the beginning.
                 // Display a brief confirmation message.
                 Toast.makeText(this, "the stop watch restarted.", Toast.LENGTH_SHORT).show();
             }
@@ -230,16 +226,6 @@ public class MainActivity extends AppCompatActivity {
 // This method is essential for cleaning up resources, particularly background threads.
     protected void onDestroy(){
         super.onDestroy();
-        // Check if the date/time thread exists and is running.
-        if (dateTimeThread != null && dateTimeThread.isAlive()){
-            dateTimeThread.interrupt(); // Signal the thread to stop.
-            try {
-                // Wait for the thread to finish gracefully (up to 1 second).
-                dateTimeThread.join(1000);
-            }catch (InterruptedException e){
-                Thread.currentThread().interrupt(); // Restore the interrupt status.
-            }
-        }
         // Check if the stopwatch thread exists and is running.
         if (startThread != null && startThread.isAlive()){
             startThread.interrupt(); // Signal the thread to stop.
@@ -250,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
                 Thread.currentThread().interrupt(); // Restore the interrupt status.
             }
         }
-        dateTimeThread = null; // Clear the reference.
         startThread = null; // Clear the reference.
     }
 }

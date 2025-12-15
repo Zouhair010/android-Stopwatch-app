@@ -13,100 +13,152 @@
         android:layout_height="335dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="56dp"
         android:foregroundGravity="center"
         android:foregroundTint="#1552E6"
         android:foregroundTintMode="multiply"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/row5"
+        app:layout_constraintBottom_toTopOf="@+id/row6" />
+
 
     <TextView
         android:id="@+id/screen"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:text="00:00:00.000"
         android:textAlignment="center"
         android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/row1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/datetimeScreen" />
-
-    <TextView
-        android:id="@+id/datetimeScreen"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="73dp"
-        android:layout_marginEnd="9dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/restartBtn"
         android:layout_width="60dp"
         android:layout_height="70dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="63dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="44dp"
         android:backgroundTint="#E92C2C"
         app:icon="@android:drawable/stat_notify_sync_noanim"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toStartOf="@+id/lapBtn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/screen" />
+        app:layout_constraintTop_toTopOf="@+id/row3"
+        app:layout_constraintBottom_toTopOf="@+id/row4"
+        app:layout_constraintEnd_toStartOf="@+id/col2"
+        app:layout_constraintStart_toStartOf="@+id/col1"/>
 
     <Button
         android:id="@+id/startBtn"
         android:layout_width="60dp"
         android:layout_height="70dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="63dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="44dp"
         android:backgroundTint="#56C107"
         app:icon="@android:drawable/ic_media_play"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
-        app:layout_constraintStart_toEndOf="@+id/lapBtn"
-        app:layout_constraintTop_toBottomOf="@+id/screen" />
+        app:layout_constraintTop_toTopOf="@+id/row3"
+        app:layout_constraintBottom_toTopOf="@+id/row4"
+        app:layout_constraintEnd_toStartOf="@+id/col4"
+        app:layout_constraintStart_toStartOf="@+id/col3"/>
 
     <Button
         android:id="@+id/lapBtn"
         android:layout_width="60dp"
         android:layout_height="70dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="63dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="44dp"
         android:backgroundTint="#F2B035"
         app:icon="@android:drawable/stat_sys_download"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toStartOf="@+id/startBtn"
-        app:layout_constraintStart_toEndOf="@+id/restartBtn"
-        app:layout_constraintTop_toBottomOf="@+id/screen" />
+        app:layout_constraintTop_toTopOf="@+id/row3"
+        app:layout_constraintBottom_toTopOf="@+id/row4"
+        app:layout_constraintEnd_toStartOf="@+id/col2"
+        app:layout_constraintStart_toStartOf="@+id/col1"/>
 
     <Button
         android:id="@+id/pauseBtn"
         android:layout_width="60dp"
         android:layout_height="70dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="63dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="44dp"
         android:backgroundTint="#38A5FB"
         android:foregroundTintMode="add"
         app:icon="@android:drawable/ic_media_pause"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintTop_toTopOf="@+id/row3"
+        app:layout_constraintBottom_toTopOf="@+id/row4"
+        app:layout_constraintEnd_toStartOf="@+id/col4"
+        app:layout_constraintStart_toStartOf="@+id/col3" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/row1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/row2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/row3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.24" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/row4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.33" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/row5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.68" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/row6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.87" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/col1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/col2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.46" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/col3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.54" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/col4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="409dp"
+        android:layout_height="37dp"
+        android:max="59"
+        app:layout_constraintBottom_toTopOf="@id/row2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/startBtn"
-        app:layout_constraintTop_toBottomOf="@+id/screen" />
+        app:layout_constraintStart_toStartOf="@+id/row1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
