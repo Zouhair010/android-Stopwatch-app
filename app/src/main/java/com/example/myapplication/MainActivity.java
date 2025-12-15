@@ -24,26 +24,29 @@ import android.widget.ArrayAdapter; // Imports the adapter class to link data to
 // Main activity class, extending the base AppCompatActivity for an Android screen.
 public class MainActivity extends AppCompatActivity {
 
-    // Manages the execution of the stopwatch timer logic in the background.
-    private Thread startThread ;
-    // Tracks whether the stopwatch is currently running.
-    private static boolean isStarted;
-    // Tracks whether the stopwatch has been reset.
-    private static boolean isReStarted;
-    // Tracks whether the stopwatch is in a paused state.
-    private static boolean isPaused;
-    // Stores the current stopwatch time as a formatted string.
-    private static String currentTime;
-    // Stores the elapsed time in milliseconds when the stopwatch is paused. Essential for resuming correctly.
-    private static long timeDifference = 0;
-    // Data store for lap times and the adapter to link it to the ListView.
-    private ListView listView;
-    private ProgressBar progressBar; // Visual indicator for the seconds of the stopwatch.
-    // The list that holds the lap time strings.
-    private static ArrayList<String> dataList;
-    // The adapter that connects dataList to the ListView.
-    private static ArrayAdapter<String> adapter;
-    private int progressSeconds = 0;
+    // UI Elements
+    private TextView screen; // Displays the current stopwatch time.
+    private Button startBtn; // The "Start" or "Resume" button.
+    private Button pauseBtn; // The "Pause" button.
+    private Button restartBtn; // The "Restart" or "Reset" button.
+    private Button lapBtn; // The "Lap" button to record a lap time.
+    private ListView listView; // Displays the list of recorded lap times.
+    private ProgressBar progressBar; // Visual indicator for the seconds part of the timer.
+
+    // Stopwatch State Management
+    private Thread startThread; // Background thread for running the stopwatch timer logic.
+    private boolean isStarted; // Flag to indicate if the stopwatch is currently running.
+    private boolean isPaused = false; // Flag to indicate if the stopwatch is paused.
+    private boolean isReStarted = false; // Flag to indicate if the stopwatch has been reset.
+    private long timeDifference = 0; // Stores the elapsed time in milliseconds when paused, for correct resume.
+
+    // Data for Lap Times
+    private String currentTime; // Stores the current stopwatch time as a formatted string.
+    private ArrayList<String> dataList; // Holds the list of lap time strings.
+    private ArrayAdapter<String> adapter; // Connects the dataList to the ListView for display.
+
+    // Helper for ProgressBar
+    private int progressSeconds = 0; // Stores the current seconds (0-59) for the progress bar.
 
 
     /**
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         seconds %= 60; // Calculate remaining seconds (0-59).
         int hours = minutes/60; // Calculate total hours.
         minutes %= 60; // Calculate remaining minutes (0-59).
-        progressSeconds =  seconds;
+        progressSeconds = seconds; // Update the seconds for the progress bar.
         // Pad with leading zeros for a consistent format.
         String second = (seconds<10) ? "0"+seconds : ""+seconds; // Format seconds with leading zero if needed.
         String minute = (minutes<10) ? "0"+minutes : ""+minutes; // Format minutes with leading zero if needed.
@@ -71,11 +74,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Starts or resumes the stopwatch.
      */
-    private void play(TextView textView) {
+    private void play() {
         // Set state flags for running mode.
-        isStarted = true;
         isPaused = false;
-        isReStarted = false;
+        isStarted = true;
         // Calculate the effective start time.
         // If resuming, this subtracts the already elapsed time (timeDifference)
         // to ensure the timer continues from where it left off.
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             currentTime = millisToTime(System.currentTimeMillis()-startTimeInMillis);
             // Update the UI with the new time. Must run on the UI thread.
             runOnUiThread(() -> {
-                textView.setText(currentTime);
+                screen.setText(currentTime);
                 progressBar.setProgress(progressSeconds, true); // Update the progress bar to reflect the current second (0-59).
             });
             // Pause the thread for a short duration to prevent high CPU usage
@@ -104,21 +106,37 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Pauses the stopwatch.
      */
-    private static void pause() {
+    private void pause() {
         // Set flags to stop the timer loop in the play() method.
-        isStarted = false;
         isPaused = true;
+        isReStarted = false;
+        isStarted = false;
+        try{
+            // Wait for the stopwatch thread to finish its current execution cycle and terminate.
+            startThread.join();
+            startThread = null; // Clear the thread reference.
+        }
+        catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
     /**
      * Stops and resets the stopwatch to zero.
      */
-    private static void restart(TextView textView) {
-        // Reset all state variables and the display to their initial values.
-        isStarted = false;
+    private void restart() {
         isReStarted = true;
-        timeDifference = 0; // Reset accumulated time difference.
-        currentTime = "00:00:00.000"; // Reset displayed time string.
-        textView.setText(currentTime); // Update the TextView with the reset time.
+        isStarted = false;
+        // A restart can only happen when the stopwatch is paused.
+        if (isPaused) {
+            // Reset all state variables and the display to their initial values.
+            timeDifference = 0; // Reset accumulated time difference.
+            currentTime = "00:00:00.000"; // Reset displayed time string.
+            screen.setText(currentTime); // Update the TextView with the reset time.
+            // Clear the lap times list and update the adapter.
+            dataList.clear();
+            adapter.notifyDataSetChanged();
+            progressBar.setProgress(0,true); // Reset the progress bar to the beginning.
+        }
     }
 
     @Override
@@ -134,9 +152,14 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        findViewById(R.id.pauseBtn).setVisibility(View.GONE);
-        findViewById(R.id.lapBtn).setVisibility(View.GONE);
-
+        screen = findViewById(R.id.screen);
+        startBtn = findViewById(R.id.startBtn);
+        pauseBtn = findViewById(R.id.pauseBtn);
+        restartBtn = findViewById(R.id.restartBtn);
+        lapBtn = findViewById(R.id.lapBtn);
+        // Set initial visibility of buttons.
+        pauseBtn.setVisibility(View.GONE);
+        lapBtn.setVisibility(View.GONE);
         // Initialize the ProgressBar. Its max value should be set to 59 or 60 in the layout XML.
         progressBar = findViewById(R.id.progressBar);
         // Initialize the list for lap times and its adapter for the ListView.
@@ -147,77 +170,44 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter); // Set the adapter on the ListView.
 
         // Set a click listener for the Start button.d
-        findViewById(R.id.startBtn).setOnClickListener(v -> {
-            // Only start if the stopwatch is not already running.
-            if (!isStarted){
-                // Initialize and start the background thread for the stopwatch.
-                startThread = new Thread(){@Override public void run(){
-                    play(findViewById(R.id.screen));
-                }};
-                startThread.start(); // Begin the stopwatch thread execution.
-                // Display a brief confirmation message.
-                Toast.makeText(this, "GO!!!!!", Toast.LENGTH_SHORT).show();
-                findViewById(R.id.startBtn).setVisibility(View.GONE);
-                findViewById(R.id.pauseBtn).setVisibility(View.VISIBLE);
-                findViewById(R.id.restartBtn).setVisibility(View.GONE);
-                findViewById(R.id.lapBtn).setVisibility(View.VISIBLE);
-            }
+        startBtn.setOnClickListener(v -> {
+            // Initialize and start the background thread for the stopwatch.
+            startThread = new Thread(){@Override public void run(){
+                play();
+            }};
+            startThread.start(); // Begin the stopwatch thread execution.
+            // Display a brief confirmation message.
+            Toast.makeText(this, "GO!!!!!", Toast.LENGTH_SHORT).show();
+
+            startBtn.setVisibility(View.GONE);
+            pauseBtn.setVisibility(View.VISIBLE);
+            restartBtn.setVisibility(View.GONE);
+            lapBtn.setVisibility(View.VISIBLE);
         });
 
         // Set a click listener for the Pause button.
-        findViewById(R.id.pauseBtn).setOnClickListener(v ->{
-            // Only pause if the stopwatch is currently running.
-            if (isStarted) {
-                pause(); // Set the flag to stop the thread's loop.
-                try{
-                    // Wait for the stopwatch thread to finish its current execution cycle and terminate.
-                    startThread.join();
-                    startThread = null; // Clear the thread reference.
-                }
-                catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                // Display a brief confirmation message.
-                Toast.makeText(this, "the stop watch paussed.", Toast.LENGTH_SHORT).show();
-                findViewById(R.id.pauseBtn).setVisibility(View.GONE);
-                findViewById(R.id.startBtn).setVisibility(View.VISIBLE);
-                findViewById(R.id.lapBtn).setVisibility(View.GONE);
-                findViewById(R.id.restartBtn).setVisibility(View.VISIBLE);
-            }
+        pauseBtn.setOnClickListener(v ->{
+            pause();
+            // Display a brief confirmation message.
+            Toast.makeText(this, "the stop watch paussed.", Toast.LENGTH_SHORT).show();
+
+            pauseBtn.setVisibility(View.GONE);
+            startBtn.setVisibility(View.VISIBLE);
+            lapBtn.setVisibility(View.GONE);
+            restartBtn.setVisibility(View.VISIBLE);
         });
 
         // Set a click listener for the Restart button.
-        findViewById(R.id.restartBtn).setOnClickListener(v ->{
-            // Restart is allowed if the stopwatch has been started or is currently paused.
-            if (isPaused || isStarted) {
-                restart(findViewById(R.id.screen)); // Reset the stopwatch state and display.
-                // Clear the lap times list and update the adapter.
-                dataList.clear();
-                adapter.notifyDataSetChanged();
-                // If the stopwatch was running (not paused), we need to stop the thread.
-                if (!isPaused){
-                    try{
-                        // Wait for the stopwatch thread to terminate.
-                        startThread.join();
-                        startThread = null; // Clear the thread reference.
-                    }
-                    catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-                progressBar.setProgress(0,true); // Reset the progress bar to the beginning.
-                // Display a brief confirmation message.
-                Toast.makeText(this, "the stop watch restarted.", Toast.LENGTH_SHORT).show();
-            }
+        restartBtn.setOnClickListener(v ->{
+            restart();
+            // Display a brief confirmation message.
+            Toast.makeText(this, "the stop watch restarted.", Toast.LENGTH_SHORT).show();
         });
 
         // Set a click listener for the Lap button.
-        findViewById(R.id.lapBtn).setOnClickListener(v -> {
-            // Only record a lap if the current time is not null and not zero.
-            if (currentTime!=null&&!currentTime.equals("00:00:00.000")) {
-                dataList.add(currentTime); // Add the current time to the lap list.
-                adapter.notifyDataSetChanged(); // Tell the ListView to refresh with the new data.
-            }
+        lapBtn.setOnClickListener(v -> {
+            dataList.add(currentTime); // Add the current time to the lap list.
+            adapter.notifyDataSetChanged(); // Tell the ListView to refresh with the new data.
         });
     }
 
